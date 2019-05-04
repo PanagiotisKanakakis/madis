@@ -10,7 +10,3 @@ class AggregateBaseUnitTestClass(unittest.TestCase):
         for arg in args:
             udf.step(arg)
         return udf.final()
-
-
-# if __name__ == '__main__':
-#     unittest.main()

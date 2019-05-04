@@ -1,10 +1,8 @@
 from datetime import datetime, timedelta
-import setpath
-from lib import iso8601
+from dateutil.parser import parse
 
 
 def tzconverter(*args):
-
     """
     .. function:: tzconverter(timestamp,offset)
 
@@ -52,7 +50,7 @@ def tzconverter(*args):
 
     """
 
-    date = iso8601.parse_date(args[0])
+    date = parse(args[0])
     mins = 0
     sign = ''
     result = ''
@@ -62,43 +60,43 @@ def tzconverter(*args):
         if c == 0:
             sign = args[1][0]
         elif c == 1:
-            mins += int(args[1][1])*600
+            mins += int(args[1][1]) * 600
         elif c == 2:
-            mins += int (args[1][2])*60
-        elif c == 3 and args[1][3] == ':': #in this case i know what's next
-            mins += int(args[1][4])*10 + int(args[1][5])
+            mins += int(args[1][2]) * 60
+        elif c == 3 and args[1][3] == ':':  # in this case i know what's next
+            mins += int(args[1][4]) * 10 + int(args[1][5])
             break;
         elif c == 3:
-            mins += int(args[1][3])*10
+            mins += int(args[1][3]) * 10
         elif c == 4:
-            mins += int (args[1][4])
-        c+=1
+            mins += int(args[1][4])
+        c += 1
 
     if sign == '+':
-        result = date + timedelta(minutes = mins)
+        result = date + timedelta(minutes=mins)
 
     elif sign == '-':
-        result = date - timedelta(minutes = mins)
+        result = date - timedelta(minutes=mins)
 
-    result =  str(result).replace(" ","T").replace("+00:00", args[1])
+    result = str(result).replace(" ", "T").replace("+00:00", args[1])
 
     return result
 
+
 tzconverter.registered = True
 
-
-
-if not ('.' in __name__):
-    """
-    This is needed to be able to test the function, put it at the end of every
-    new function you create
-    """
-    import sys
-    import setpath
-    from functions import *
-    testfunction()
-    if __name__ == "__main__":
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
-        import doctest
-        doctest.testmod()
+#
+# if not ('.' in __name__):
+#     """
+#     This is needed to be able to test the function, put it at the end of every
+#     new function you create
+#     """
+#     import sys
+#     import setpath
+#     from functions import *
+#     testfunction()
+#     if __name__ == "__main__":
+#         reload(sys)
+#         sys.setdefaultencoding('utf-8')
+#         import doctest
+#         doctest.testmod()
