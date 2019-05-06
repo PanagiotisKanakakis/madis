@@ -34,74 +34,79 @@ Examples:
 """
 import src.functions.vtable.vtbase
 import os.path
-import functions
+# import functions
 import os
 
-registered=True
+registered = True
+
 
 class dirfiles(src.functions.vtable.vtbase.VT):
     def VTiter(self, *parsedArgs, **envars):
         def expandedpath(p):
-            return os.path.realpath(os.path.abspath(os.path.expanduser(os.path.expandvars(os.path.normcase(os.path.normpath(p))))))
+            return os.path.realpath(
+                os.path.abspath(os.path.expanduser(os.path.expandvars(os.path.normcase(os.path.normpath(p))))))
 
         yield [('c1', 'text'), ('c2', 'text')]
 
         opts = self.full_parse(parsedArgs)
 
-        dirname='.'
-        recursive=False
+        dirname = '.'
+        recursive = False
 
         if 'rec' in opts[1]:
             del opts[1]['rec']
-            recursive=True
+            recursive = True
 
         if 'r' in opts[1]:
             del opts[1]['r']
-            recursive=True
+            recursive = True
 
-        if not recursive and len(opts[0])+len(opts[1])>1:
-            if opts[0][0]=='rec' or opts[0][0]=='recursive':
-                recursive=True
+        if not recursive and len(opts[0]) + len(opts[1]) > 1:
+            if opts[0][0] == 'rec' or opts[0][0] == 'recursive':
+                recursive = True
                 del opts[0][0]
 
         if 'query' in opts[1]:
-            dirname=query
-        elif len(opts[0])>0:
-            dirname=opts[0][-1]
-        elif len(opts[0])==len(opts[1])==0:
-            dirname='.'
+            dirname = query
+        elif len(opts[0]) > 0:
+            dirname = opts[0][-1]
+        elif len(opts[0]) == len(opts[1]) == 0:
+            dirname = '.'
         else:
-            functions.OperatorError(__name__.rsplit('.')[-1], 'A directory name should be provided')
+            Exception(__name__.rsplit('.')[-1], 'A directory name should be provided')
 
-        dirname=expandedpath(dirname)
+        dirname = expandedpath(dirname)
 
         if not recursive:
             for f in os.listdir(dirname):
-                fullpathf=expandedpath(os.path.join(dirname,f))
+                fullpathf = expandedpath(os.path.join(dirname, f))
                 if os.path.isfile(fullpathf):
                     yield (fullpathf, f)
         else:
             for root, dirs, files in os.walk(dirname):
                 for f in files:
-                    fullpathf=expandedpath(os.path.join(root, f))
+                    fullpathf = expandedpath(os.path.join(root, f))
                     if os.path.isfile(fullpathf):
                         yield (fullpathf, f)
 
-def Source():
-    return src.functions.vtable.vtbase.VTGenerator(dirfiles)
 
-
-if not ('.' in __name__):
-    """
-    This is needed to be able to test the function, put it at the end of every
-    new function you create
-    """
-    import sys
-    import src.functions.vtable.setpath
-    from functions import *
-    testfunction()
-    if __name__ == "__main__":
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
-        import doctest
-        doctest.testmod()
+# def Source():
+#     return src.functions.vtable.vtbase.VTGenerator(dirfiles)
+#
+#
+# if not ('.' in __name__):
+#     """
+#     This is needed to be able to test the function, put it at the end of every
+#     new function you create
+#     """
+#     import sys
+#     import src.functions.vtable.setpath
+#     from functions import *
+#
+#     testfunction()
+#     if __name__ == "__main__":
+#         reload(sys)
+#         sys.setdefaultencoding('utf-8')
+#         import doctest
+#
+#         doctest.testmod()

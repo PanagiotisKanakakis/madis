@@ -1,6 +1,6 @@
 import re
 
-reduce_spaces=re.compile(ur'\s+', re.UNICODE)
+reduce_spaces=re.compile('\s+', re.UNICODE)
 
 def CreateStatement(description,tablename):
     names=[]

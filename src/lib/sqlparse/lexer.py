@@ -78,7 +78,7 @@ class LexerMeta(type):
 
             try:
                 rex = re.compile(tdef[0], rflags).match
-            except Exception, err:
+            except Exception as err:
                 raise ValueError(("uncompilable regex %r in state"
                                   " %r of %r: %s"
                                   % (tdef[0], state, cls, err)))
@@ -196,7 +196,7 @@ class Lexer:
         self.filters = []
 
     def add_filter(self, filter_, **options):
-        from sqlparse.filters import Filter
+        from src.lib.sqlparse.filters import Filter
         if not isinstance(filter_, Filter):
             filter_ = filter_(**options)
         self.filters.append(filter_)
