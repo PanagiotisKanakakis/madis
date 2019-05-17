@@ -62,7 +62,7 @@ class PipeVT(src.functions.vtable.vtbase.VT):
 
         yield (('C1', 'text'),)
 
-        child = subprocess.Popen(command, shell=True, bufsize=1, stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True)
+        child = subprocess.Popen(command, shell=True, bufsize=1, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
 
         if linesplit:
 

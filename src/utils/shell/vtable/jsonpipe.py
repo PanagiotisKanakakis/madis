@@ -59,7 +59,7 @@ class JSONPipeVT(src.functions.vtable.vtbase.VT):
         if command is None:
             raise src.functions.OperatorError(__name__.rsplit('.')[-1], "No command argument found")
 
-        child = subprocess.Popen(command, shell=True, bufsize=1, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        child = subprocess.Popen(command, shell=True, bufsize=1, stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True)
         jsondecode = json.JSONDecoder().scan_once
         pipeiter = iter(child.stdout.readline, '')
 
