@@ -34,30 +34,28 @@ Examples::
     wc: nonexistingfile: No such file or directory
 """
 
-
-import functions
-import src.functions.vtable.vtbase
-
 import subprocess
+import src.functions.vtable.vtbase
 
 registered = True
 external_stream = True
 
+
 class PipeVT(src.functions.vtable.vtbase.VT):
-    def VTiter(self, *parsedArgs,**envars):
+    def VTiter(self, *parsedArgs, **envars):
         largs, dictargs = self.full_parse(parsedArgs)
 
         command = None
-        
+
         if len(largs) > 0:
             command = largs[-1]
-        
+
         if 'query' in dictargs:
             command = dictargs['query']
 
         if command is None:
-            raise functions.OperatorError(__name__.rsplit('.')[-1],"No command argument found")
-        
+            raise src.functions.OperatorError(__name__.rsplit('.')[-1], "No command argument found")
+
         linesplit = True
         if 'lines' in dictargs and dictargs['lines'][0] in ('f', 'F', '0'):
             linesplit = False
@@ -68,9 +66,15 @@ class PipeVT(src.functions.vtable.vtbase.VT):
 
         if linesplit:
             pipeiter = iter(child.stdout.readline, '')
-            for line in pipeiter:
-                yield (line.rstrip("\r\n").decode('utf_8', 'replace'), )
-            
+
+            try:
+                line = pipeiter.__next__()
+                yield (str(line).rstrip("\r\n"),)
+            except StopIteration:
+                yield (('C1', 'text'),)
+                raise StopIteration
+                return
+
             output, error = child.communicate()
         else:
             output, error = child.communicate()
@@ -78,22 +82,28 @@ class PipeVT(src.functions.vtable.vtbase.VT):
             yield [output.decode('utf_8', 'replace').rstrip("\r\n")]
 
         if child.returncode != 0:
-            raise functions.OperatorError(__name__.rsplit('.')[-1], "Command '%s' failed to execute because:\n%s" %(command,error.rstrip('\n\t ')))
+            raise src.functions.OperatorError(__name__.rsplit('.')[-1],
+                                              "Command '%s' failed to execute because:\n%s" % (
+                                                  command, error.rstrip('\n\t ')))
 
-def Source():
-    return src.functions.vtable.vtbase.VTGenerator(PipeVT)
-
-if not ('.' in __name__):
-    """
-    This is needed to be able to test the function, put it at the end of every
-    new function you create
-    """
-    import sys
-    import src.functions.vtable.setpath
-    from functions import *
-    testfunction()
-    if __name__ == "__main__":
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
-        import doctest
-        doctest.testmod()
+#
+# def Source():
+#     return src.functions.vtable.vtbase.VTGenerator(PipeVT)
+#
+#
+# if not ('.' in __name__):
+#     """
+#     This is needed to be able to test the function, put it at the end of every
+#     new function you create
+#     """
+#     import sys
+#     import src.functions.vtable.setpath
+#     from functions import *
+#
+#     testfunction()
+#     if __name__ == "__main__":
+#         reload(sys)
+#         sys.setdefaultencoding('utf-8')
+#         import doctest
+#
+#         doctest.testmod()

@@ -559,8 +559,8 @@ class FileVT:
 
     def getdescription(self):
         if not self.names:
-            raise functions.OperatorError(__name__.rsplit('.')[-1],
-                                          "VTable getdescription called before initiliazation")
+            raise Exception(__name__.rsplit('.')[-1],
+                            "VTable getdescription called before initiliazation")
         self.nonames = False
         return self.names
 

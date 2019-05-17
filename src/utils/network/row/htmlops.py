@@ -1,13 +1,15 @@
 # coding: utf-8
 import urllib
 import re
-from htmlentitydefs import name2codepoint
-import urlparse
+# from htmlentitydefs import name2codepoint
+from urllib.parse import urlparse
 import os
 import mimetypes
 import xml.sax.saxutils
 import operator
 import json
+
+
 
 def urlsplit(*args):
 
@@ -42,7 +44,7 @@ def urlsplit(*args):
     yield ('scheme', 'netloc', 'path', 'filename', 'type', 'subtype', 'params', 'query', 'fragment')
 
     url=''.join(args)
-    u=urlparse.urlparse(''.join(args))
+    u=urlparse(''.join(args))
     pf=os.path.split(u[2])
 
     if len(pf)==2:
@@ -54,7 +56,7 @@ def urlsplit(*args):
         path+='/'
 
     m=mimetypes.guess_type(url)
-    if m[0]!=None:
+    if m[0] is not None:
         m1, m2=m[0].split('/')
     else:
         m1, m2=(os.path.splitext(filename)[1], '')
@@ -86,7 +88,7 @@ def urllocation(*args):
     http://www.test.com/search.csv
     """
 
-    u=urlparse.urlparse(''.join(args))
+    u=urlparse(''.join(args))
 
     return u[0]+u'://'+''.join(u[1:3])
 
@@ -115,7 +117,7 @@ def urlquery2jdict(*args):
 
     url=args[0]
     if url.startswith('http://') or url[0:1]=='/':
-        url=urlparse.urlparse(url)[4]
+        url=urlparse(url)[4]
     u=urlparse.parse_qs(url, True)
 
     for x,y in u.iteritems():
@@ -131,15 +133,15 @@ def htmlunescape(s):
     def unescape(match):
         code = match.group(1)
         if code:
-            return unichr(int(code, 10))
+            return chr(int(code, 10))
         else:
             code = match.group(2)
             if code:
-                return unichr(int(code, 16))
+                return chr(int(code, 16))
             else:
                 code = match.group(3)
                 if code in name2codepoint:
-                    return unichr(name2codepoint[code])
+                    return chr(name2codepoint[code])
         return match.group(0)
 
     return EntityPattern.sub(unescape, s)
@@ -369,17 +371,17 @@ def htmllink(*args):
 
 htmllink.registered=True
 
-if not ('.' in __name__):
-    """
-    This is needed to be able to test the function, put it at the end of every
-    new function you create
-    """
-    import sys
-    import src.functions.row.setpath
-    from functions import *
-    testfunction()
-    if __name__ == "__main__":
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
-        import doctest
-        doctest.testmod()
+# if not ('.' in __name__):
+#     """
+#     This is needed to be able to test the function, put it at the end of every
+#     new function you create
+#     """
+#     import sys
+#     import src.functions.row.setpath
+#     from functions import *
+#     testfunction()
+#     if __name__ == "__main__":
+#         reload(sys)
+#         sys.setdefaultencoding('utf-8')
+#         import doctest
+#         doctest.testmod()

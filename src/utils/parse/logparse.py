@@ -64,17 +64,17 @@ def apachelogsplit(*args):
 
 apachelogsplit.registered=True
 
-if not ('.' in __name__):
-    """
-    This is needed to be able to test the function, put it at the end of every
-    new function you create
-    """
-    import sys
-    import src.functions.row.setpath
-    from functions import *
-    testfunction()
-    if __name__ == "__main__":
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
-        import doctest
-        doctest.testmod()
+# if not ('.' in __name__):
+#     """
+#     This is needed to be able to test the function, put it at the end of every
+#     new function you create
+#     """
+#     import sys
+#     import src.functions.row.setpath
+#     from functions import *
+#     testfunction()
+#     if __name__ == "__main__":
+#         reload(sys)
+#         sys.setdefaultencoding('utf-8')
+#         import doctest
+#         doctest.testmod()

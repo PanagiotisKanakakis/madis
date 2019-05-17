@@ -34,39 +34,39 @@ Examples::
     wc: nonexistingfile: No such file or directory
 """
 
-
-import functions
-import src.functions.vtable.vtbase
 import itertools
 import json
 import subprocess
 
+import src.functions.vtable.vtbase
+
 registered = True
 external_stream = True
 
+
 class JSONPipeVT(src.functions.vtable.vtbase.VT):
-    def VTiter(self, *parsedArgs,**envars):
+    def VTiter(self, *parsedArgs, **envars):
         largs, dictargs = self.full_parse(parsedArgs)
 
         command = None
-        
+
         if len(largs) > 0:
             command = largs[-1]
-        
+
         if 'query' in dictargs:
             command = dictargs['query']
 
         if command is None:
-            raise functions.OperatorError(__name__.rsplit('.')[-1],"No command argument found")
-        
-        child = subprocess.Popen(command, shell=True, bufsize=1, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            raise src.functions.OperatorError(__name__.rsplit('.')[-1], "No command argument found")
 
+        child = subprocess.Popen(command, shell=True, bufsize=1, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         jsondecode = json.JSONDecoder().scan_once
         pipeiter = iter(child.stdout.readline, '')
-        firstline = ''
 
         try:
-            firstline = pipeiter.next()
+            firstline = pipeiter.__next__()
+            print(firstline)
+            # firstline = next(pipeiter).decode('utf-8')
         except StopIteration:
             yield (('C1', 'text'),)
             raise StopIteration
@@ -75,19 +75,21 @@ class JSONPipeVT(src.functions.vtable.vtbase.VT):
         namelist = []
         schemaline = json.loads(firstline)
         schemalinetype = type(schemaline)
+        print(schemaline)
+        print(schemalinetype)
 
         if schemalinetype == list:
-            for i in xrange(1, len(schemaline)+1):
-                namelist.append( ['C'+str(i), 'text'] )
+            for i in range(1, len(schemaline) + 1):
+                namelist.append(['C' + str(i), 'text'])
             pipeiter = itertools.chain([firstline], self.fileiter)
         elif schemalinetype == dict:
             namelist += schemaline['schema']
         else:
-            raise functions.OperatorError(__name__.rsplit('.')[-1], "Input file is not in line JSON format")
+            raise src.functions.OperatorError(__name__.rsplit('.')[-1], "Input file is not in line JSON format")
 
         yield tuple(namelist)
 
-        if "MSPW" in functions.apsw_version:
+        if "MSPW" in src.functions.apsw_version:
             for line in pipeiter:
                 yield json.loads(line)
         else:
@@ -97,22 +99,28 @@ class JSONPipeVT(src.functions.vtable.vtbase.VT):
         output, error = child.communicate()
 
         if child.returncode != 0:
-            raise functions.OperatorError(__name__.rsplit('.')[-1], "Command '%s' failed to execute because:\n%s" %(command,error.rstrip('\n\t ')))
+            raise src.functions.OperatorError(__name__.rsplit('.')[-1],
+                                              "Command '%s' failed to execute because:\n%s" % (
+                                                  command, error.rstrip('\n\t ')))
 
-def Source():
-    return src.functions.vtable.vtbase.VTGenerator(JSONPipeVT)
-
-if not ('.' in __name__):
-    """
-    This is needed to be able to test the function, put it at the end of every
-    new function you create
-    """
-    import sys
-    import src.functions.vtable.setpath
-    from functions import *
-    testfunction()
-    if __name__ == "__main__":
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
-        import doctest
-        doctest.testmod()
+#
+# def Source():
+#     return src.functions.vtable.vtbase.VTGenerator(JSONPipeVT)
+#
+#
+# if not ('.' in __name__):
+#     """
+#     This is needed to be able to test the function, put it at the end of every
+#     new function you create
+#     """
+#     import sys
+#     import src.functions.vtable.setpath
+#     from functions import *
+#
+#     testfunction()
+#     if __name__ == "__main__":
+#         reload(sys)
+#         sys.setdefaultencoding('utf-8')
+#         import doctest
+#
+#         doctest.testmod()

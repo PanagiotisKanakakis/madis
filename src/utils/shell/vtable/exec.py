@@ -115,51 +115,54 @@ Test files:
 
 """
 
-import copy
+import datetime
+import logging
+import os
 import os.path
-    
-import src.functions.vtable.setpath  #for importing from project root directory  KEEP IT IN FIRST LINE
-from src.functions.vtable.vtout import SourceNtoOne
+import re
+import types
+
 import apsw
 import functions
-import logging
-import datetime
-import os
-import copy
-import re
-import time
-import types
+
+import src.functions.vtable.setpath  # for importing from project root directory  KEEP IT IN FIRST LINE
+from src import functions
 
 comment_line = re.compile(r'/\*.*?\*/(.*)$')
 registered = True
 
+
 def filterlinecomment(s):
-    if re.match(r'\s*--', s, re.DOTALL|re.UNICODE):
+    if re.match(r'\s*--', s, re.DOTALL | re.UNICODE):
         return ''
     else:
         return s
 
+
 def breakquery(q):
     if len(q) > 1:
-        raise functions.OperatorError(__name__.rsplit('.')[-1], "Ambiguous query column, result has more than one columns")
+        raise functions.OperatorError(__name__.rsplit('.')[-1],
+                                      "Ambiguous query column, result has more than one columns")
     st = ''
     for row in q[0].splitlines():
         strow = filterlinecomment(row)
         if strow == '':
             continue
         if st != '':
-            st += '\n'+strow
+            st += '\n' + strow
         else:
             st += strow
         if apsw.complete(st):
             yield st
             st = ''
 
-    if len(st) > 0 and not re.match(r'\s+$', st, re.DOTALL| re.UNICODE):
+    if len(st) > 0 and not re.match(r'\s+$', st, re.DOTALL | re.UNICODE):
         if len(st) > 35:
-            raise functions.OperatorError(__name__.rsplit('.')[-1], "Incomplete statement found : %s ... %s" % (st[:15], st[-15:]))
+            raise functions.OperatorError(__name__.rsplit('.')[-1],
+                                          "Incomplete statement found : %s ... %s" % (st[:15], st[-15:]))
         else:
             raise functions.OperatorError(__name__.rsplit('.')[-1], "Incomplete statement found : %s" % (st,))
+
 
 def execflow(diter, schema, connection, *args, **kargs):
     ignoreflag = 'ignorefail'
@@ -167,7 +170,7 @@ def execflow(diter, schema, connection, *args, **kargs):
     if functions.variables.execdb is None:
         functions.variables.execdb = connection.filename
     con = functions.Connection(functions.variables.execdb)
-    
+
     functions.register(con)
     oldvars = functions.variables
     newvars = lambda x: x
@@ -187,14 +190,14 @@ def execflow(diter, schema, connection, *args, **kargs):
         else:
             raise functions.OperatorError(__name__.rsplit('.')[-1], "Variable %s doesn't exist" % (v,))
     for newv, oldv in kargs.items():
-        if hasattr(functions.variables,oldv):
-            newvars.__dict__[newv]=functions.variables.__dict__[oldv]
+        if hasattr(functions.variables, oldv):
+            newvars.__dict__[newv] = functions.variables.__dict__[oldv]
         else:
             raise functions.OperatorError(__name__.rsplit('.')[-1], "Variable %s doen't exist" % (oldv,))
     functions.variables = newvars
 
     if functions.settings['logging']:
-        lg = logging.LoggerAdapter(logging.getLogger(__name__),{ "flowname" : functions.variables.flowname  })
+        lg = logging.LoggerAdapter(logging.getLogger(__name__), {"flowname": src.functions.variables.flowname})
         lg.info("############FLOW START###################")
     before = datetime.datetime.now()
 
@@ -206,7 +209,7 @@ def execflow(diter, schema, connection, *args, **kargs):
                 line += 1
                 if type(query) not in types.StringTypes:
                     raise functions.OperatorError(__name__.rsplit('.')[-1], "Content is not sql query")
-                #Skip empty queries or comment lines
+                # Skip empty queries or comment lines
                 query = query.strip()
                 if query.startswith("--"):
                     continue
@@ -214,24 +217,26 @@ def execflow(diter, schema, connection, *args, **kargs):
                 if query == '' or (cmatch is not None and cmatch.groups()[0] == ''):
                     continue
 
-                if functions.settings['logging']:
-                    lg = logging.LoggerAdapter(logging.getLogger(__name__),{ "flowname" : functions.variables.flowname  })
-                    lg.info("STARTING: %s" %(query))
+                if src.functions.settings['logging']:
+                    lg = logging.LoggerAdapter(logging.getLogger(__name__),
+                                               {"flowname": src.functions.variables.flowname})
+                    lg.info("STARTING: %s" % (query))
                 before = datetime.datetime.now()
                 c = con.cursor()
                 # check ignore flag
                 catchexception = False
                 if query.startswith(ignoreflag):
-                    catchexception=True
+                    catchexception = True
                     query = query[len(ignoreflag):]
                 try:
                     for i in c.execute(query):
                         pass
-                except Exception,e: #Cathing IGNORE FAIL EXCEPTION
+                except Exception as e:  # Cathing IGNORE FAIL EXCEPTION
                     if catchexception:
-                        if functions.settings['logging']:
-                            lg = logging.LoggerAdapter(logging.getLogger(__name__),{ "flowname" : functions.variables.flowname  })
-                            lg.exception("Ignoring Exception: "+str(e))
+                        if src.functions.settings['logging']:
+                            lg = logging.LoggerAdapter(logging.getLogger(__name__),
+                                                       {"flowname": src.functions.variables.flowname})
+                            lg.exception("Ignoring Exception: " + str(e))
                         continue
                     else:
                         try:
@@ -242,49 +247,57 @@ def execflow(diter, schema, connection, *args, **kargs):
                             pass
                         raise e
 
-                if functions.settings['logging']:
-                    lg = logging.LoggerAdapter(logging.getLogger(__name__),{ "flowname" : functions.variables.flowname  })
+                if src.functions.settings['logging']:
+                    lg = logging.LoggerAdapter(logging.getLogger(__name__),
+                                               {"flowname": src.functions.variables.flowname})
                     after = datetime.datetime.now()
-                    tmdiff = after-before
-                    duration = "%s min. %s sec %s msec" % ((int(tmdiff.days)*24*60+(int(tmdiff.seconds)/60), (int(tmdiff.seconds)%60),(int(tmdiff.microseconds)/1000)))
+                    tmdiff = after - before
+                    duration = "%s min. %s sec %s msec" % ((
+                        int(tmdiff.days) * 24 * 60 + (int(tmdiff.seconds) / 60), (int(tmdiff.seconds) % 60),
+                        (int(tmdiff.microseconds) / 1000)))
                     lg.info("FINISHED in %s: %s" % (duration, query))
                 c.close()
-    except Exception, e:
+    except Exception as e:
         if functions.settings['logging']:
-            lg = logging.LoggerAdapter(logging.getLogger(__name__),{ "flowname" : functions.variables.flowname  })
+            lg = logging.LoggerAdapter(logging.getLogger(__name__), {"flowname": src.functions.variables.flowname})
             lg.exception(e)
-        raise functions.OperatorError(__name__.rsplit('.')[-1], "Error in statement no. %s query '%s':\n%s" % (line, query, str(e)))
+        raise functions.OperatorError(__name__.rsplit('.')[-1],
+                                      "Error in statement no. %s query '%s':\n%s" % (line, query, str(e)))
     finally:
         try:
             con.close()
         except:
             pass
         after = datetime.datetime.now()
-        tmdiff = after-before
-        fltm = "Flow executed in %s min. %s sec %s msec" %((int(tmdiff.days)*24*60+(int(tmdiff.seconds)/60),(int(tmdiff.seconds)%60),(int(tmdiff.microseconds)/1000)))
+        tmdiff = after - before
+        fltm = "Flow executed in %s min. %s sec %s msec" % ((
+            int(tmdiff.days) * 24 * 60 + (int(tmdiff.seconds) / 60), (int(tmdiff.seconds) % 60),
+            (int(tmdiff.microseconds) / 1000)))
         if functions.settings['logging']:
-            lg = logging.LoggerAdapter(logging.getLogger(__name__),{ "flowname" : functions.variables.flowname  })
+            lg = logging.LoggerAdapter(logging.getLogger(__name__), {"flowname": src.functions.variables.flowname})
             lg.info(fltm)
             lg.info("#############FLOW END####################")
         functions.variables = oldvars
         if newpath:
             os.chdir(path)
 
-def Source():
-    return SourceNtoOne(execflow,connectionhandler=True)
-
-
-if not ('.' in __name__):
-    """
-    This is needed to be able to test the function, put it at the end of every
-    new function you create
-    """
-    import sys
-    import src.functions.vtable.setpath
-    from functions import *
-    testfunction()
-    if __name__ == "__main__":
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
-        import doctest
-        doctest.testmod()
+# def Source():
+#     return SourceNtoOne(execflow, connectionhandler=True)
+#
+#
+# if not ('.' in __name__):
+#     """
+#     This is needed to be able to test the function, put it at the end of every
+#     new function you create
+#     """
+#     import sys
+#     import src.functions.vtable.setpath
+#     from functions import *
+#
+#     testfunction()
+#     if __name__ == "__main__":
+#         reload(sys)
+#         sys.setdefaultencoding('utf-8')
+#         import doctest
+#
+#         doctest.testmod()
