@@ -62,18 +62,12 @@ class PipeVT(src.functions.vtable.vtbase.VT):
 
         yield (('C1', 'text'),)
 
-        child = subprocess.Popen(command, shell=True, bufsize=1, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        child = subprocess.Popen(command, shell=True, bufsize=1, stdout=subprocess.PIPE, stderr=subprocess.PIPE,universal_newlines=True)
 
         if linesplit:
-            pipeiter = iter(child.stdout.readline, '')
 
-            try:
-                line = pipeiter.__next__()
-                yield (str(line).rstrip("\r\n"),)
-            except StopIteration:
-                yield (('C1', 'text'),)
-                raise StopIteration
-                return
+            for line in iter(child.stdout.readline, ''):
+                yield (line.rstrip("\r\n"),)
 
             output, error = child.communicate()
         else:
