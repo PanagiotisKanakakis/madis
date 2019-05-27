@@ -21,42 +21,44 @@ Examples:
 """
 import src.functions.vtable.vtbase
 
-registered=True
-external_stream=True
+
+registered = True
+external_stream = True
+
 
 class clipboard(src.functions.vtable.vtbase.VT):
     def __init__(self):
-        self.schema=[('C1', 'text')]
+        self.schema = [('C1', 'text')]
         self.count = None
 
-    def checkfordelimiter(self, delim = '\t'):
-        #check for regular schema
-        hasschema=True
-        self.count=0
-        if len(self.data)>0:
+    def checkfordelimiter(self, delim='\t'):
+        # check for regular schema
+        hasschema = True
+        self.count = 0
+        if len(self.data) > 0:
             self.count = self.data[0].count(delim)
-            if self.count==0:
-                hasschema=False
+            if self.count == 0:
+                hasschema = False
             else:
                 for i in self.data[1:]:
                     if i.count(delim) != self.count:
-                        hasschema=False
+                        hasschema = False
                         break
         return hasschema
 
     def VTiter(self, *parsedArgs, **envars):
         largs, dictargs = self.full_parse(parsedArgs)
-        import lib.pyperclip as clip
-        data=unicode(clip.getcb(), 'utf_8')
+        import src.lib.pyperclip as clip
+        data = str(clip.getcb(), 'utf_8')
 
-        if data.count('\n')>=data.count('\r'):
-            data=data.split('\n')
+        if data.count('\n') >= data.count('\r'):
+            data = data.split('\n')
         else:
-            data=data.split('\r')
+            data = data.split('\r')
 
-        #delete empty lines from the end
-        for i in xrange(len(data)-1,-1,-1):
-            if len(data[i])==0:
+        # delete empty lines from the end
+        for i in range(len(data) - 1, -1, -1):
+            if len(data[i]) == 0:
                 del data[i]
             else:
                 break
@@ -82,11 +84,11 @@ class clipboard(src.functions.vtable.vtbase.VT):
                 delim = ';'
             elif self.checkfordelimiter(':'):
                 delim = ':'
-            elif self.checkfordelimiter(' ') and len(data)>1:
+            elif self.checkfordelimiter(' ') and len(data) > 1:
                 delim = ' '
 
-        if delim != None:
-            data=[[x.strip() for x in i.split(delim)] for i in data]
+        if delim is not None:
+            data = [[x.strip() for x in i.split(delim)] for i in data]
             self.schema = None
             header = False
 
@@ -95,16 +97,16 @@ class clipboard(src.functions.vtable.vtbase.VT):
                 if i.startswith('h'):
                     header = True
 
-            if header and len(data)>0:
-                self.schema = [(c,'text') for c in data[0]]
+            if header and len(data) > 0:
+                self.schema = [(c, 'text') for c in data[0]]
                 data = data[1:]
             else:
-                if self.count == None:
+                if self.count is None:
                     count = len(data[0]) + 1
                 else:
                     count = self.count + 2
-                    
-                self.schema=[('C'+str(i),'text') for i in xrange(1, count)]
+
+                self.schema = [('C' + str(i), 'text') for i in range(1, count)]
         else:
             data = [[r.strip()] for r in data]
 
@@ -113,21 +115,24 @@ class clipboard(src.functions.vtable.vtbase.VT):
         for r in data:
             yield r
 
-def Source():
-    return src.functions.vtable.vtbase.VTGenerator(clipboard)
 
-
-if not ('.' in __name__):
-    """
-    This is needed to be able to test the function, put it at the end of every
-    new function you create
-    """
-    import sys
-    import src.functions.vtable.setpath
-    from functions import *
-    testfunction()
-    if __name__ == "__main__":
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
-        import doctest
-        doctest.testmod()
+# def Source():
+#     return src.functions.vtable.vtbase.VTGenerator(clipboard)
+#
+#
+# if not ('.' in __name__):
+#     """
+#     This is needed to be able to test the function, put it at the end of every
+#     new function you create
+#     """
+#     import sys
+#     import src.functions.vtable.setpath
+#     from functions import *
+#
+#     testfunction()
+#     if __name__ == "__main__":
+#         reload(sys)
+#         sys.setdefaultencoding('utf-8')
+#         import doctest
+#
+#         doctest.testmod()

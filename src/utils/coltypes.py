@@ -34,50 +34,54 @@ Applying coltypes in the result of virtual table func:`typing` function in the s
 
 import src.functions.vtable.setpath
 import src.functions.vtable.vtbase
-import functions
+from src.functions import functions
 
-registered=True
+registered = True
+
 
 class ColTypes(src.functions.vtable.vtbase.VT):
-    def VTiter(self, *parsedArgs,**envars):
+    def VTiter(self, *parsedArgs, **envars):
         largs, dictargs = self.full_parse(parsedArgs)
 
         if 'query' not in dictargs:
-            raise functions.OperatorError(__name__.rsplit('.')[-1],"No query argument ")
+            raise functions.OperatorError(__name__.rsplit('.')[-1], "No query argument ")
 
-        query=dictargs['query']
-        connection=envars['db']
+        query = dictargs['query']
+        connection = envars['db']
 
         yield (('column', 'text'), ('type', 'text'))
 
-        cur=connection.cursor()
-        execit=cur.execute(query, parse = False)
+        cur = connection.cursor()
+        execit = cur.execute(query, parse=False)
         try:
-            samplerow=execit.next()
+            samplerow = execit.next()
         except StopIteration:
             pass
 
-        vals=cur.getdescriptionsafe()
+        vals = cur.getdescriptionsafe()
         cur.close()
 
         for i in vals:
             yield i
-        
-def Source():
-    return src.functions.vtable.vtbase.VTGenerator(ColTypes)
 
 
-if not ('.' in __name__):
-    """
-    This is needed to be able to test the function, put it at the end of every
-    new function you create
-    """
-    import sys
-    import src.functions.vtable.setpath
-    from functions import *
-    testfunction()
-    if __name__ == "__main__":
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
-        import doctest
-        doctest.testmod()
+# def Source():
+#     return src.functions.vtable.vtbase.VTGenerator(ColTypes)
+#
+#
+# if not ('.' in __name__):
+#     """
+#     This is needed to be able to test the function, put it at the end of every
+#     new function you create
+#     """
+#     import sys
+#     import src.functions.vtable.setpath
+#     from functions import *
+#
+#     testfunction()
+#     if __name__ == "__main__":
+#         reload(sys)
+#         sys.setdefaultencoding('utf-8')
+#         import doctest
+#
+#         doctest.testmod()

@@ -19,53 +19,53 @@ Examples:
     1
 """
 
-import src.functions.vtable.setpath
-from src.functions.vtable.vtout import SourceNtoOne
 import os
 import functions
 
-registered=True
+registered = True
+
 
 def Clipout(diter, schema, *args, **kargs):
-    import lib.pyperclip as clip
-    a=[]
+    import src.lib.pyperclip as clip
+    a = []
 
-    exportheader=False
+    exportheader = False
 
     for i in args:
         if i.startswith('h'):
-            exportheader=True
+            exportheader = True
 
     for i in kargs:
         if i.startswith('h'):
-            exportheader=True
+            exportheader = True
 
-    if exportheader==True:
-        a.append(u'\t'.join([unicode(i[0]).replace('\t','    ').replace('\n',' ') for i in schema]).encode('utf_8', 'replace'))
-        exportheader=False
+    if exportheader == True:
+        a.append(
+            u'\t'.join([str(i[0]).replace('\t', '    ').replace('\n', ' ') for i in schema]).encode('utf_8', 'replace'))
+        exportheader = False
 
     for row in diter:
-        a.append(u'\t'.join([unicode(i).replace('\t','    ').replace('\n',' ') for i in row]).encode('utf_8', 'replace'))
+        a.append(u'\t'.join([str(i).replace('\t', '    ').replace('\n', ' ') for i in row]).encode('utf_8', 'replace'))
 
     if os.name == 'nt':
         clip.setcb(functions.mstr('\n'.join(a)))
     else:
         clip.setcb('\n'.join(a))
 
-def Source():
-    return SourceNtoOne(Clipout)
-
-if not ('.' in __name__):
-    """
-    This is needed to be able to test the function, put it at the end of every
-    new function you create
-    """
-    import sys
-    import src.functions.vtable.setpath
-    from functions import *
-    testfunction()
-    if __name__ == "__main__":
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
-        import doctest
-        doctest.testmod()
+# def Source():
+#     return SourceNtoOne(Clipout)
+#
+# if not ('.' in __name__):
+#     """
+#     This is needed to be able to test the function, put it at the end of every
+#     new function you create
+#     """
+#     import sys
+#     import src.functions.vtable.setpath
+#     from functions import *
+#     testfunction()
+#     if __name__ == "__main__":
+#         reload(sys)
+#         sys.setdefaultencoding('utf-8')
+#         import doctest
+#         doctest.testmod()

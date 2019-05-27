@@ -29,40 +29,41 @@ Examples:
 """
 import src.functions.vtable.vtbase
 
-registered=True
+registered = True
 external_query = True
+
 
 class examplevt(src.functions.vtable.vtbase.VT):
     def VTiter(self, *parsedArgs, **envars):
-        yield [('varname', ), ('value', 'text')]
+        yield [('varname',), ('value', 'text')]
 
         largs, dictargs = self.full_parse(parsedArgs)
 
         li = 0
         for i in largs:
-            yield [li, unicode(i)]
+            yield [li, str(i)]
             li += 1
 
         for k, v in dictargs.iteritems():
-            yield [unicode(k), unicode(v)]
+            yield [str(k), str(v)]
 
-        for x,y in envars.iteritems():
-            yield ["envar:"+x, str(y)]
+        for x, y in envars.iteritems():
+            yield ["envar:" + x, str(y)]
 
-def Source():
-    return src.functions.vtable.vtbase.VTGenerator(examplevt)
-
-if not ('.' in __name__):
-    """
-    This is needed to be able to test the function, put it at the end of every
-    new function you create
-    """
-    import sys
-    import src.functions.vtable.setpath
-    from functions import *
-    testfunction()
-    if __name__ == "__main__":
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
-        import doctest
-        doctest.testmod()
+# def Source():
+#     return src.functions.vtable.vtbase.VTGenerator(examplevt)
+#
+# if not ('.' in __name__):
+#     """
+#     This is needed to be able to test the function, put it at the end of every
+#     new function you create
+#     """
+#     import sys
+#     import src.functions.vtable.setpath
+#     from functions import *
+#     testfunction()
+#     if __name__ == "__main__":
+#         reload(sys)
+#         sys.setdefaultencoding('utf-8')
+#         import doctest
+#         doctest.testmod()

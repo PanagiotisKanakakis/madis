@@ -40,11 +40,12 @@ Examples::
 """
 import src.functions.vtable.setpath
 import src.functions.vtable.vtbase
-import functions
+from src.functions import functions
 import gc
 
 ### Classic stream iterator
-registered=True
+registered = True
+
 
 class fromEAV(src.functions.vtable.vtbase.VT):
     def VTiter(self, *parsedArgs, **envars):
@@ -81,14 +82,14 @@ class fromEAV(src.functions.vtable.vtbase.VT):
         record[0] = rid
         record[1] = l[0]
         record[2] = l[2]
-        for i in xrange(3, len(schema)):
+        for i in range(3, len(schema)):
             l = c.next()
             record[schema_order[l[1]]] = l[2]
         yield record
 
         lr = len(schema) - 2
         while True:
-            for i in xrange(lr):
+            for i in range(lr):
                 l = c.next()
                 record[schema_order[l[1]]] = l[2]
             rid += 1
@@ -96,20 +97,20 @@ class fromEAV(src.functions.vtable.vtbase.VT):
             record[1] = l[0]
             yield record
 
-def Source():
-    return src.functions.vtable.vtbase.VTGenerator(fromEAV)
-
-if not ('.' in __name__):
-    """
-    This is needed to be able to test the function, put it at the end of every
-    new function you create
-    """
-    import sys
-    import src.functions.vtable.setpath
-    from functions import *
-    testfunction()
-    if __name__ == "__main__":
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
-        import doctest
-        doctest.testmod()
+# def Source():
+#     return src.functions.vtable.vtbase.VTGenerator(fromEAV)
+#
+# if not ('.' in __name__):
+#     """
+#     This is needed to be able to test the function, put it at the end of every
+#     new function you create
+#     """
+#     import sys
+#     import src.functions.vtable.setpath
+#     from functions import *
+#     testfunction()
+#     if __name__ == "__main__":
+#         reload(sys)
+#         sys.setdefaultencoding('utf-8')
+#         import doctest
+#         doctest.testmod()

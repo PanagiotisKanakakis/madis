@@ -41,68 +41,71 @@ Test files:
 """
 import src.functions.vtable.setpath
 import src.functions.vtable.vtbase
-import functions
+from src.functions import functions
 import apsw
 import re
 
-registered=True
+registered = True
+
 
 def filterlinecomment(s):
-    if re.match(r'\s*--', s, re.DOTALL| re.UNICODE):
+    if re.match(r'\s*--', s, re.DOTALL | re.UNICODE):
         return ''
     else:
         return s
 
+
 class FlowVT(src.functions.vtable.vtbase.VT):
-    def VTiter(self, *parsedArgs,**envars):
+    def VTiter(self, *parsedArgs, **envars):
         largs, dictargs = self.full_parse(parsedArgs)
 
         if 'query' not in dictargs:
-            raise functions.OperatorError(__name__.rsplit('.')[-1],"No query argument ")
+            raise functions.OperatorError(__name__.rsplit('.')[-1], "No query argument ")
 
-        query=dictargs['query']
-        connection=envars['db']
-        
+        query = dictargs['query']
+        connection = envars['db']
+
         yield (('query', 'text'),)
-        cur=connection.cursor()
-        execit=cur.execute(query, parse = False)
+        cur = connection.cursor()
+        execit = cur.execute(query, parse=False)
 
-        st=''
+        st = ''
         for row in execit:
-            strow=filterlinecomment(' '.join(row))
-            if strow=='':
+            strow = filterlinecomment(' '.join(row))
+            if strow == '':
                 continue
-            if st!='':
-                st+='\n'+strow
+            if st != '':
+                st += '\n' + strow
             else:
-                st+=strow
+                st += strow
             if apsw.complete(st):
                 yield [st]
-                st=''
-        if len(st)>0 and not re.match(r'\s+$', st, re.DOTALL| re.UNICODE):
-            if len(st)>35:
-                raise functions.OperatorError(__name__.rsplit('.')[-1],"Incomplete statement found : %s ... %s" %(st[:15],st[-15:]))
+                st = ''
+        if len(st) > 0 and not re.match(r'\s+$', st, re.DOTALL | re.UNICODE):
+            if len(st) > 35:
+                raise functions.OperatorError(__name__.rsplit('.')[-1],
+                                              "Incomplete statement found : %s ... %s" % (st[:15], st[-15:]))
             else:
-                raise functions.OperatorError(__name__.rsplit('.')[-1],"Incomplete statement found : %s" %(st))
-
-def Source():
-    return src.functions.vtable.vtbase.VTGenerator(FlowVT)
+                raise functions.OperatorError(__name__.rsplit('.')[-1], "Incomplete statement found : %s" % (st))
 
 
+# def Source():
+#     return src.functions.vtable.vtbase.VTGenerator(FlowVT)
 
-if not ('.' in __name__):
-    """
-    This is needed to be able to test the function, put it at the end of every
-    new function you create
-    """
-    import sys
-    import src.functions.vtable.setpath
-    from functions import *
-    testfunction()
-    if __name__ == "__main__":
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
-        import doctest
-        doctest.testmod()
-
-
+#
+# if not ('.' in __name__):
+#     """
+#     This is needed to be able to test the function, put it at the end of every
+#     new function you create
+#     """
+#     import sys
+#     import src.functions.vtable.setpath
+#     from functions import *
+#
+#     testfunction()
+#     if __name__ == "__main__":
+#         reload(sys)
+#         sys.setdefaultencoding('utf-8')
+#         import doctest
+#
+#         doctest.testmod()

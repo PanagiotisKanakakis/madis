@@ -1,13 +1,13 @@
 __docformat__ = 'reStructuredText en'
 
-import lib.jopts as jopts
+import src.lib.jopts as jopts
 import json
 
 try:
     from collections import OrderedDict
 except ImportError:
     # Python 2.6
-    from lib.collections26 import OrderedDict
+    from src.lib.collections26 import OrderedDict
 
 
 class jgroup:
@@ -334,19 +334,19 @@ class jgroupuniquelimit:
 
     def final(self):
         return self.k
-
-
-if not ('.' in __name__):
-    """
-    This is needed to be able to test the function, put it at the end of every
-    new function you create
-    """
-    import sys
-
-    testfunction()
-    if __name__ == "__main__":
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
-        import doctest
-
-        doctest.testmod()
+#
+#
+# if not ('.' in __name__):
+#     """
+#     This is needed to be able to test the function, put it at the end of every
+#     new function you create
+#     """
+#     import sys
+#
+#     testfunction()
+#     if __name__ == "__main__":
+#         reload(sys)
+#         sys.setdefaultencoding('utf-8')
+#         import doctest
+#
+#         doctest.testmod()

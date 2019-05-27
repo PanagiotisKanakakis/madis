@@ -36,23 +36,23 @@ Examples::
 """
 import src.functions.vtable.setpath
 import src.functions.vtable.vtbase
-import functions
+from src.functions import functions
 
 registered = True
-       
+
+
 class SampleVT(src.functions.vtable.vtbase.VT):
-    def VTiter(self, *parsedArgs,**envars):
+    def VTiter(self, *parsedArgs, **envars):
         largs, dictargs = self.full_parse(parsedArgs)
 
         if 'query' not in dictargs:
-            raise functions.OperatorError(__name__.rsplit('.')[-1],"No query argument ")
-        query=dictargs['query']
+            raise functions.OperatorError(__name__.rsplit('.')[-1], "No query argument ")
+        query = dictargs['query']
 
         samplesize = 1
 
         if len(largs) > 0:
             samplesize = int(largs[0])
-
 
         if 'size' in dictargs:
             samplesize = int(dictargs['size'])
@@ -60,10 +60,10 @@ class SampleVT(src.functions.vtable.vtbase.VT):
         try:
             samplesize = int(samplesize)
         except ValueError:
-            raise functions.OperatorError(__name__.rsplit('.')[-1],"Sample size should be integer")
+            raise functions.OperatorError(__name__.rsplit('.')[-1], "Sample size should be integer")
 
         cur = envars['db'].cursor()
-        c = cur.execute(query, parse = False)
+        c = cur.execute(query, parse=False)
 
         try:
             yield list(cur.getdescriptionsafe())
@@ -89,22 +89,24 @@ class SampleVT(src.functions.vtable.vtbase.VT):
         for r in samplelist:
             yield r
 
-def Source():
-    return src.functions.vtable.vtbase.VTGenerator(SampleVT)
 
-if not ('.' in __name__):
-    """
-    This is needed to be able to test the function, put it at the end of every
-    new function you create
-    """
-    import sys
-    import src.functions.vtable.setpath
-    from functions import *
-    testfunction()
-    if __name__ == "__main__":
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
-        import doctest
-        doctest.testmod()
-
-
+# def Source():
+#     return src.functions.vtable.vtbase.VTGenerator(SampleVT)
+#
+#
+# if not ('.' in __name__):
+#     """
+#     This is needed to be able to test the function, put it at the end of every
+#     new function you create
+#     """
+#     import sys
+#     import src.functions.vtable.setpath
+#     from functions import *
+#
+#     testfunction()
+#     if __name__ == "__main__":
+#         reload(sys)
+#         sys.setdefaultencoding('utf-8')
+#         import doctest
+#
+#         doctest.testmod()

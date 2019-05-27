@@ -40,22 +40,23 @@ Examples::
 """
 import src.functions.vtable.setpath
 import src.functions.vtable.vtbase
-import functions
+from src.functions import functions
 import gc
 
 ### Classic stream iterator
-registered=True
-       
+registered = True
+
+
 class Ordered(src.functions.vtable.vtbase.VT):
     def BestIndex(self, constraints, orderbys):
         return (None, 0, None, True, 1000)
 
-    def VTiter(self, *parsedArgs,**envars):
+    def VTiter(self, *parsedArgs, **envars):
         largs, dictargs = self.full_parse(parsedArgs)
 
         if 'query' not in dictargs:
-            raise functions.OperatorError(__name__.rsplit('.')[-1],"No query argument ")
-        query=dictargs['query']
+            raise functions.OperatorError(__name__.rsplit('.')[-1], "No query argument ")
+        query = dictargs['query']
 
         cur = envars['db'].cursor()
         q = cur.execute(query, parse=False)
@@ -77,22 +78,23 @@ class Ordered(src.functions.vtable.vtbase.VT):
         gc.enable()
 
 
-def Source():
-    return src.functions.vtable.vtbase.VTGenerator(Ordered)
-
-if not ('.' in __name__):
-    """
-    This is needed to be able to test the function, put it at the end of every
-    new function you create
-    """
-    import sys
-    import src.functions.vtable.setpath
-    from functions import *
-    testfunction()
-    if __name__ == "__main__":
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
-        import doctest
-        doctest.testmod()
-
-
+# def Source():
+#     return src.functions.vtable.vtbase.VTGenerator(Ordered)
+#
+#
+# if not ('.' in __name__):
+#     """
+#     This is needed to be able to test the function, put it at the end of every
+#     new function you create
+#     """
+#     import sys
+#     import src.functions.vtable.setpath
+#     from functions import *
+#
+#     testfunction()
+#     if __name__ == "__main__":
+#         reload(sys)
+#         sys.setdefaultencoding('utf-8')
+#         import doctest
+#
+#         doctest.testmod()

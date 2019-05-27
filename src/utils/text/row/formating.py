@@ -1,13 +1,13 @@
-import src.functions.row.setpath
-import re
 import datetime
-import StringIO
-from lib.dsv import writer, reader
-from lib import argsparse
-import functions
-import lib.inoutparsing as csvargs
+# import StringIO
+import io
+from src.lib.dsv import writer, reader
+from src.lib import argsparse
+import src.functions
+import src.lib.inoutparsing as csvargs
 
-def strsplit(*args): ###splits the first arguments
+
+def strsplit(*args):  ###splits the first arguments
     """
     
     .. function:: strsplit(str[,formatting options]) -> [C1,C2,....]
@@ -87,47 +87,48 @@ def strsplit(*args): ###splits the first arguments
     MadisError: Madis SQLError:
     "quotechar" must be an 1-character string
 
-    """    
-    if len(args)<1:
-        raise functions.OperatorError("strsplit"," no input")
+    """
+    if len(args) < 1:
+        raise src.functions.OperatorError("strsplit", " no input")
 
-    arg=args[0]
-    args=args[1:]
+    arg = args[0]
+    args = args[1:]
     try:
-        largs, kargs = argsparse.parse(args,csvargs.boolargs,csvargs.nonstringargs,csvargs.needsescape)
-    except Exception,e:
-        raise functions.MadisError(e)
+        largs, kargs = argsparse.parse(args, csvargs.boolargs, csvargs.nonstringargs, csvargs.needsescape)
+    except Exception as e:
+        raise src.functions.MadisError(e)
     if 'dialect' not in kargs:
-        kargs['dialect']=csvargs.defaultcsv()
+        kargs['dialect'] = csvargs.defaultcsv()
         if 'delimiter' not in kargs:
-            kargs['delimiter']=' '
+            kargs['delimiter'] = ' '
 
-    if len(largs)>0:
-        raise functions.OperatorError("strsplit","strsplit operator: Unknown argument %s" %(''.join(largs)))
-    f=StringIO.StringIO()
-    
+    if len(largs) > 0:
+        raise src.functions.OperatorError("strsplit", "strsplit operator: Unknown argument %s" % (''.join(largs)))
+    f = io.StringIO()
+
     f.write(arg.encode('utf-8'))
     f.seek(0)
     try:
-        r=reader(f,**kargs)
-    except Exception,e:
-        raise functions.MadisError(e)
-    first=True
-    
+        r = reader(f, **kargs)
+    except Exception as e:
+        raise src.functions.MadisError(e)
+    first = True
+
     for row in r:
         if first:
-            first=False
-            yield tuple("C"+str(i) for i in xrange(1, len(row) + 1))
+            first = False
+            yield tuple("C" + str(i) for i in range(1, len(row) + 1))
         yield row
     if first:
-        first=False
+        first = False
         yield ["C1"]
     f.close()
-    
 
-strsplit.registered=True
 
-def strsplitv(*args): ###splits the first arguments
+strsplit.registered = True
+
+
+def strsplitv(*args):  ###splits the first arguments
     """
     .. function:: strsplitv(str[,formatting options]) -> [C1]
 
@@ -152,48 +153,49 @@ def strsplitv(*args): ###splits the first arguments
     Second
     Third
     """
-    if len(args)<1:
-        raise functions.OperatorError("strsplitv","strsplit operator: no input")
+    if len(args) < 1:
+        raise src.functions.OperatorError("strsplitv", "strsplit operator: no input")
 
-    arg=args[0]
-    args=args[1:]
+    arg = args[0]
+    args = args[1:]
     try:
-        largs, kargs = argsparse.parse(args,csvargs.boolargs,csvargs.nonstringargs,csvargs.needsescape)
-    except Exception,e:
-        raise functions.MadisError(e)
+        largs, kargs = argsparse.parse(args, csvargs.boolargs, csvargs.nonstringargs, csvargs.needsescape)
+    except Exception as e:
+        raise src.functions.MadisError(e)
     if 'dialect' not in kargs:
-        kargs['dialect']=csvargs.defaultcsv()
+        kargs['dialect'] = csvargs.defaultcsv()
         if 'delimiter' not in kargs:
-            kargs['delimiter']=' '
+            kargs['delimiter'] = ' '
 
-    if len(largs)>0:
-        raise functions.OperatorError("strsplitv","strsplit operator: Unknown argument %s" %(''.join(largs)))
-    f=StringIO.StringIO()
+    if len(largs) > 0:
+        raise src.functions.OperatorError("strsplitv", "strsplit operator: Unknown argument %s" % (''.join(largs)))
+    f = io.StringIO()
 
     f.write(arg.encode('utf-8'))
     f.seek(0)
 
     try:
-        r=reader(f,**kargs)
-    except Exception,e:
-        raise functions.MadisError(e)
-    first=True
+        r = reader(f, **kargs)
+    except Exception as e:
+        raise src.functions.MadisError(e)
+    first = True
 
     for row in r:
         if first:
-            first=False
+            first = False
             yield ("C1",)
         for el in row:
             yield [el]
     if first:
-        first=False
+        first = False
         yield ("C1",)
     f.close()
 
-strsplitv.registered=True
+
+strsplitv.registered = True
+
 
 def strjoin(*args):
-
     """
     .. function:: strjoin(value1,value2,....[,'params',formatting options])
 
@@ -221,43 +223,42 @@ def strjoin(*args):
     """
     if None in args:
         return None
-    sargs=[]
-    params=False
-    for i in xrange(len(args)):
-        if args[i]=='params':
-            args=args[(i+1):]
-            params=True
+    sargs = []
+    params = False
+    for i in range(len(args)):
+        if args[i] == 'params':
+            args = args[(i + 1):]
+            params = True
             break
         else:
             sargs.append(args[i])
     try:
         if params:
-            largs, kargs = argsparse.parse(args,csvargs.boolargs,csvargs.nonstringargs,csvargs.needsescape)
+            largs, kargs = argsparse.parse(args, csvargs.boolargs, csvargs.nonstringargs, csvargs.needsescape)
         else:
-            largs=[]
-            kargs=dict()
-    except Exception,e:
-        raise functions.MadisError(e)
-    if len(largs)>0:
-        raise functions.OperatorError("strjoin","Unknown argument %s" %(''.join(largs)))
+            largs = []
+            kargs = dict()
+    except Exception as e:
+        raise src.functions.MadisError(e)
+    if len(largs) > 0:
+        raise src.functions.OperatorError("strjoin", "Unknown argument %s" % (''.join(largs)))
     if 'dialect' not in kargs:
-        kargs['dialect']=csvargs.defaultcsv()
-    f=StringIO.StringIO()
+        kargs['dialect'] = csvargs.defaultcsv()
+    f = io.StringIO()
     try:
-        csvprinter=writer(f,**kargs)
-    except Exception,e:
-        raise functions.MadisError(e)
+        csvprinter = writer(f, **kargs)
+    except Exception as e:
+        raise src.functions.MadisError(e)
     csvprinter.writerow(sargs)
     f.seek(0)
-    s=f.read()
+    s = f.read()
     return s
 
 
-strjoin.registered=True
+strjoin.registered = True
 
 
 def dateformat(*args):
-
     """
     .. function:: dateformat(date[,inpformat,outformat])
 
@@ -291,42 +292,40 @@ def dateformat(*args):
     --------
     01/28/09
     """
-    fromf='%d-%m-%y'
-    tof='%Y-%m-%d'
-    if len(args)<1:
-        raise functions.OperatorError("dateformat","No input")
+    fromf = '%d-%m-%y'
+    tof = '%Y-%m-%d'
+    if len(args) < 1:
+        raise src.functions.OperatorError("dateformat", "No input")
     if None in args:
         return None
-    if len(args)>1:
-        fromf=args[1]
-    if len(args)>2:
-        tof=args[2]
-    dt=args[0]
+    if len(args) > 1:
+        fromf = args[1]
+    if len(args) > 2:
+        tof = args[2]
+    dt = args[0]
     try:
-        dtobj=datetime.datetime.strptime(dt,fromf)
-        ret=datetime.datetime.strftime(dtobj,tof)
-    except ValueError,e:
+        dtobj = datetime.datetime.strptime(dt, fromf)
+        ret = datetime.datetime.strftime(dtobj, tof)
+    except ValueError as e:
         return None
-    except Exception,e:
-        raise functions.OperatorError("dateformat",e)
+    except Exception as e:
+        raise src.functions.OperatorError("dateformat", e)
     return ret
 
 
-dateformat.registered=True
+dateformat.registered = True
 
-
-
-if not ('.' in __name__):
-    """
-    This is needed to be able to test the function, put it at the end of every
-    new function you create
-    """
-    import sys
-    import src.functions.row.setpath
-    from functions import *
-    testfunction()
-    if __name__ == "__main__":
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
-        import doctest
-        doctest.testmod()
+# if not ('.' in __name__):
+#     """
+#     This is needed to be able to test the function, put it at the end of every
+#     new function you create
+#     """
+#     import sys
+#     import src.functions.row.setpath
+#     from functions import *
+#     testfunction()
+#     if __name__ == "__main__":
+#         reload(sys)
+#         sys.setdefaultencoding('utf-8')
+#         import doctest
+#         doctest.testmod()

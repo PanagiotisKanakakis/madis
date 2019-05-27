@@ -75,9 +75,9 @@ Examples::
 
 import src.functions.vtable.setpath
 import src.functions.vtable.vtbase
-import functions
+from src.functions import functions
 import re
-from lib.sqlitetypes import getElementSqliteType
+from src.lib.sqlitetypes import getElementSqliteType
 
 ### Classic stream iterator
 registered = True

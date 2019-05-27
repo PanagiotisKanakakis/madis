@@ -186,7 +186,7 @@ def farith(*args):
             else:
                 try:
                     s.append(Fraction(*json.loads(i)))
-                except ValueError, e:
+                except ValueError as e:
                     raise functions.OperatorError('farith',"invalid expression found: '" + i +"'")
 
     return simplify_fraction(s.pop())
@@ -225,7 +225,7 @@ def tonumber(*args):
 
     """
 
-    if type(args[0]) not in (str, unicode):
+    if type(args[0]) not in str:
         return args[0]
 
     try:
@@ -239,18 +239,18 @@ def tonumber(*args):
     return ret
 
 tonumber.registered = True
-
-if not ('.' in __name__):
-    """
-    This is needed to be able to test the function, put it at the end of every
-    new function you create
-    """
-    import sys
-    import src.functions.row.setpath
-    from functions import *
-    testfunction()
-    if __name__ == "__main__":
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
-        import doctest
-        doctest.testmod()
+#
+# if not ('.' in __name__):
+#     """
+#     This is needed to be able to test the function, put it at the end of every
+#     new function you create
+#     """
+#     import sys
+#     import src.functions.row.setpath
+#     from functions import *
+#     testfunction()
+#     if __name__ == "__main__":
+#         reload(sys)
+#         sys.setdefaultencoding('utf-8')
+#         import doctest
+#         doctest.testmod()

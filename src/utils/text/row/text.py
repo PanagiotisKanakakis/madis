@@ -1,13 +1,14 @@
 # coding: utf-8
-import setpath
 import re
 import functions
-import unicodedata
+import strdata
 import hashlib
 import zlib
 import itertools
 from collections import deque
-from lib import jopts
+from src.lib import jopts
+from src.functions import functions
+
 
 # Increase regular expression cache
 try:
@@ -360,17 +361,17 @@ def utf8clean(*args):
 
     def cleanchar(c):
         c=c.group()[0]
-        if c != '\n' and unicodedata.category(c)[0] == 'C':
+        if c != '\n' and strdata.category(c)[0] == 'C':
             return u''
         else:
             return c
 
     o=''
     for i in args:
-        if type(i) in (str,unicode):
+        if type(i) in str:
             o+=characters_to_clean.sub(cleanchar, i)
         else:
-            o+=unicode(i, errors='replace')
+            o+=str(i, errors='replace')
 
     return o
 
@@ -413,7 +414,7 @@ def regexpr(*args):
         return
 
     if len(args)==2:
-        a=re.search(args[0], unicode(args[1]),re.UNICODE)
+        a=re.search(args[0], str(args[1]),re.UNICODE)
         if a!=None:
             if len(a.groups())>0:
                 return jopts.toj(a.groups())
@@ -452,7 +453,7 @@ def regexprfindall(*args):
     if len(args)!=2:
         raise functions.OperatorError('regexprfindall', 'Two parameters should be provided')
 
-    return jopts.tojstrict(re.findall(args[0], unicode(args[1]),re.UNICODE))
+    return jopts.tojstrict(re.findall(args[0], str(args[1]),re.UNICODE))
 
 regexprfindall.registered=True
 
@@ -476,7 +477,7 @@ def regexprmatches(*args):
     if len(args)!=2:
         raise functions.OperatorError('regexprmatches', 'Two parameters should be provided')
 
-    a=re.search(args[0], unicode(args[1]),re.UNICODE)
+    a=re.search(args[0], str(args[1]),re.UNICODE)
     if a!=None:
         return True
     else:
@@ -572,7 +573,7 @@ def regexpcountuniquematches(*args):
 
     """
 
-    return len(set(re.findall(args[0], unicode(args[1]), re.UNICODE)))
+    return len(set(re.findall(args[0], str(args[1]), re.UNICODE)))
 
 regexpcountuniquematches.registered=True
 
@@ -596,7 +597,7 @@ def regexpcountwords(*args):
     2
     """
 
-    return sum(((i.group().strip().count(' ')+1)  for i in re.finditer(args[0],unicode(args[1]),re.UNICODE) ))
+    return sum(((i.group().strip().count(' ')+1)  for i in re.finditer(args[0],str(args[1]),re.UNICODE) ))
 
 regexpcountwords.registered=True
 
@@ -632,7 +633,7 @@ def unitosuni(*args):
     .. function:: unitosuni(str)
 
     Returns *str* replacing non-ascii characters with their equivalent
-    unicode code point literal at the \\u00 format.
+    str code point literal at the \\u00 format.
 
     Examples:
 
@@ -654,7 +655,7 @@ def unitosuni(*args):
     if args[0]==None:
         return None
     try:
-        return repr(unicode(args[0])).replace('\\x','\\u00')[2:-1]
+        return repr(str(args[0])).replace('\\x','\\u00')[2:-1]
     except KeyboardInterrupt:
         raise
     except Exception:
@@ -667,7 +668,7 @@ def sunitouni(*args):
     """
     .. function:: sunitouni(str)
 
-    Returns *str* replacing literal unicode code points to their string representation.
+    Returns *str* replacing literal str code points to their string representation.
 
     Examples:
 
@@ -675,10 +676,10 @@ def sunitouni(*args):
     test
     -------
     brûlé
-    >>> sql("select sunitouni('\\u that is not a unicode code point') as test  ")
+    >>> sql("select sunitouni('\\u that is not a str code point') as test  ")
     test
     -----------------------------------
-    \u that is not a unicode code point
+    \u that is not a str code point
     >>> sql("select sunitouni(null)")
     sunitouni(null)
     ---------------
@@ -692,7 +693,7 @@ def sunitouni(*args):
         raise functions.OperatorError("sunitouni","operator takes only one arguments")
     if args[0]==None:
         return None
-    kk="u'%s'" %(unicode(args[0]).replace("'","\\'"))
+    kk="u'%s'" %(str(args[0]).replace("'","\\'"))
     try:
         return eval(kk)
     except KeyboardInterrupt:
@@ -732,8 +733,8 @@ def stripchars(*args):
     if args[0]==None:
         return None
     if len(args)<2:
-        return unicode(args[0]).strip()
-    return unicode(args[0]).strip(args[1])
+        return str(args[0]).strip()
+    return str(args[0]).strip(args[1])
 stripchars.registered=True
 
 
@@ -744,15 +745,15 @@ def reencode(*args):
     us=args[0]
     if us==None:
         return None
-    us=unicode(us)
+    us=str(us)
     try:
-        a=unicode(us.encode('iso-8859-1'),'utf-8')
+        a=str(us.encode('iso-8859-1'),'utf-8')
         return a
     except KeyboardInterrupt:
         raise
     except Exception:
         try:
-            a=unicode(us.encode('windows-1252'),'utf-8')
+            a=str(us.encode('windows-1252'),'utf-8')
             return a
         except Exception:
             return us
@@ -764,7 +765,7 @@ def normuni(*args):
     """
     .. function:: normuni(str)
 
-    Returns *str* normalised in the composed unicode normal form without replacing
+    Returns *str* normalised in the composed str normal form without replacing
     same look characters. For example this 'À' character can be encoded with one or two
     different characters, :func:`normuni` returns an one-character encoded version. This
     function is important to check true strings equality.
@@ -795,7 +796,7 @@ def normuni(*args):
         raise functions.OperatorError("normuni","operator takes only one arguments")
     if args[0]==None:
         return None    
-    return unicodedata.normalize('NFC', args[0])
+    return strdata.normalize('NFC', args[0])
 
 normuni.registered=True
 
@@ -1053,7 +1054,7 @@ def textreferences(txt,maxlen = 5,pattern = r'(\b|_)((1[5-9]\d{2,2})|(20\d{2,2})
     results = []
     densities = []
 
-    for i in xrange(maxlen/2):
+    for i in range(maxlen/2):
         results.append(1)
     for i in reversedtext:
         if len(i)>10:
@@ -1062,12 +1063,12 @@ def textreferences(txt,maxlen = 5,pattern = r'(\b|_)((1[5-9]\d{2,2})|(20\d{2,2})
             else:
                     results.append(0)
 
-    for i in xrange(maxlen/2):
+    for i in range(maxlen/2):
         results.append(0)
 
     out = 0
     temp = 0
-    for i in xrange(maxlen/2,len(results)-maxlen/2):
+    for i in range(maxlen/2,len(results)-maxlen/2):
         if i==maxlen/2 :
             temp = sum(results[0:maxlen])*1.0/maxlen
         else:
@@ -1180,7 +1181,7 @@ def textwindow(*args):
     if pattern == None:
         prev = abs(prev)
 
-    yield tuple(itertools.chain( ('prev'+str(x) for x in xrange(1,abs(prev)+1)),('middle',), ('next'+str(y) for y in xrange(1,nextlen + 1)) ))
+    yield tuple(itertools.chain( ('prev'+str(x) for x in range(1,abs(prev)+1)),('middle',), ('next'+str(y) for y in range(1,nextlen + 1)) ))
     g = [''] * prev + r.split(' ') + [''] * ((middle-1)+nextlen)
 
     if prev >= 0:    
@@ -1189,21 +1190,21 @@ def textwindow(*args):
         im = prev
         if middle == 1:
             if pattern == None:
-                for i in xrange(len(g)-window + 1):
+                for i in range(len(g)-window + 1):
                     yield (g[i:i+window])
             else:
                  patt = re.compile(pattern,re.UNICODE)
-                 for i in xrange(len(g)-window + 1):
+                 for i in range(len(g)-window + 1):
                     if patt.search(g[i+im]):
                         yield (g[i:i+window])
 
         else :
             if pattern == None:
-                for i in xrange(len(g)-window+1):
+                for i in range(len(g)-window+1):
                     yield (  g[i:i+prev] + [' '.join(g[i+prev:i+pm])] + g[i+prev+middle:i+window]  )
             else:
                  patt = re.compile(pattern,re.UNICODE)
-                 for i in xrange(len(g)-window+1):
+                 for i in range(len(g)-window+1):
                     mid = ' '.join(g[i+prev:i+pm])
                     if patt.search(mid):
                         yield (  g[i:i+prev] + [mid] + g[i+pm:i+window]  )
@@ -1214,14 +1215,14 @@ def textwindow(*args):
         winprev = deque(winprev, prev)
         if middle == 1:
              patt = re.compile(pattern,re.UNICODE)
-             for i in xrange(len(g)-window + 1):
+             for i in range(len(g)-window + 1):
                 if patt.search(g[i]):
                     yield tuple(itertools.chain(winprev,(g[i:i+window])))
                 else:
                     winprev.append(g[i])
         else :
              patt = re.compile(pattern,re.UNICODE)
-             for i in xrange(len(g)-window + 1):
+             for i in range(len(g)-window + 1):
                 mid = ' '.join(g[i:i+middle])
                 if patt.search(g[i]):
                     yield tuple(itertools.chain(winprev, ([mid] + g[i+middle:i+window]  )))
@@ -1285,30 +1286,30 @@ def textwindow2s(*args):
             patt = re.compile(args[4])
         except:
             raise functions.OperatorError('textwindow2s','Fourth argument must be string or compiled pattern')
-        for i in xrange(len(g)-middle+1):
+        for i in range(len(g)-middle+1):
             im = i+middle
             mid = ' '.join(g[i:im])
             if patt.search(mid):
                 yield (' '.join(g[max(i-prev,0):i]),mid,' '.join(g[im:im+nextlen]))
     else:
-        for i in xrange(len(g)-middle+1):
+        for i in range(len(g)-middle+1):
             im = i+middle
             yield (' '.join(g[max(i-prev,0):i]),' '.join(g[i:im]),' '.join(g[im:im+nextlen]))
         
 textwindow2s.registered=True
 
-
-if not ('.' in __name__):
-    """
-    This is needed to be able to test the function, put it at the end of every
-    new function you create
-    """
-    import sys
-    import setpath
-    from functions import *
-    testfunction()
-    if __name__ == "__main__":
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
-        import doctest
-        doctest.testmod()
+#
+# if not ('.' in __name__):
+#     """
+#     This is needed to be able to test the function, put it at the end of every
+#     new function you create
+#     """
+#     import sys
+#     import setpath
+#     from functions import *
+#     testfunction()
+#     if __name__ == "__main__":
+#         reload(sys)
+#         sys.setdefaultencoding('utf-8')
+#         import doctest
+#         doctest.testmod()
