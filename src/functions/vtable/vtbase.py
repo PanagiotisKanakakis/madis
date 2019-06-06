@@ -40,7 +40,6 @@ class VT(object):
         return args
 
     def full_parse(self, args, boolargs=None, nonstringargs=None, needsescape=None, notsplit=None):
-        print(args)
         return argsparse.parse(args, boolargs, nonstringargs, needsescape, notsplit)
 
     def open(self, *args, **kargs):

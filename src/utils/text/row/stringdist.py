@@ -1,5 +1,4 @@
 # coding: utf-8
-import src
 import src.lib.stringdists as sd
 from src.functions import functions
 

@@ -90,7 +90,7 @@ def createConnection(db):
             connection = functions.Connection(db)
         functions.register(connection)
         connection.enableloadextension(True)
-    except Exception, e:
+    except Exception as e:
         exitwitherror(e)
 
     # Change TEMP store to where the mterm is run from
@@ -870,7 +870,7 @@ while True:
                 try:
                     desc = cursor.getdescriptionsafe()
                     lastcols[0:len(desc)] = [x for x, y in desc]
-                except apsw.ExecutionCompleteError, e:
+                except apsw.ExecutionCompleteError as e:
                     desc = []
 
             newcols=[x for x,y in desc]
@@ -921,22 +921,22 @@ while True:
             schemaprint(newcols)
             printterm("KeyboardInterrupt exception: Query execution stopped", exit=True)
             continue
-        except (apsw.SQLError, apsw.ConstraintError , functions.MadisError), e:
-            emsg=unicode(e)
+        except (apsw.SQLError, apsw.ConstraintError , functions.MadisError) as e:
+            emsg=str(e)
             if pipedinput:
                 exitwitherror(functions.mstr(emsg))
             else:
                 try:
                     if u'Error:' in emsg:
                         emsgsplit=emsg.split(u':')
-                        print Fore.RED+Style.BRIGHT+ emsgsplit[0] +u':'+Style.RESET_ALL+ u':'.join(emsgsplit[1:])
+                        print(Fore.RED+Style.BRIGHT+ emsgsplit[0] +u':'+Style.RESET_ALL+ u':'.join(emsgsplit[1:]))
                     else:
-                        print e
+                        print(e)
                 except:
-                    print e
+                    print(e)
 
             continue
-        except Exception, e:
+        except Exception as e:
             trlines = []
 
             for i in reversed(traceback.format_exc(limit=sys.getrecursionlimit()).splitlines()):
@@ -948,7 +948,7 @@ while True:
             if pipedinput:
                 exitwitherror(functions.mstr(msg))
             else:
-                print msg
+                print(msg)
 
         finally:
             colorama.deinit()

@@ -38,3 +38,8 @@ project.xml
 private.xml
 private.properties
 src/docs/html/_sources/row.txt
+.idea/
+build/
+dist/
+madis-screen.png
+madis_lib.egg-info/

@@ -70,7 +70,7 @@ def parametrize(*args, **kargs):
         escapelists = kargs['escapelists']
 
     for p in args:
-        splitable = re_params.match(str(p))
+        splitable = re_params.match(p.decode('utf-8'))
         if not splitable:
             ps.append(p)
         else:

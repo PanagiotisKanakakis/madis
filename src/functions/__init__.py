@@ -205,10 +205,10 @@ class Cursor(object):
                     pass
 
     def execute(self, statements, bindings=None, parse=True, localbindings=None):  # overload execute statement
-        if localbindings != None:
+        if localbindings is not None:
             bindings = localbindings
         else:
-            if bindings == None:
+            if bindings is None:
                 bindings = variables.__dict__
             else:
                 if type(bindings) is dict:
@@ -222,7 +222,7 @@ class Cursor(object):
                                       functions['row'].keys(), substitute=functions['row']['subst'])
         s = svts[0]
         try:
-            if self.__vtables != []:
+            if self.__vtables:
                 self.executetrace(''.join(['drop table ' + 'temp.' + x + ';' for x in reversed(self.__vtables)]))
                 self.__vtables = []
             for i in svts[1]:
@@ -411,15 +411,15 @@ def register(connection=None):
         oldexecdb = variables.execdb
         dbpath = None
 
-        if variables.execdb != None:
+        if variables.execdb is not None:
             dbpath = os.path.join(os.path.abspath(os.path.dirname(variables.execdb)), 'functions')
 
-        if dbpath == None or not os.path.exists(dbpath):
+        if dbpath is None or not os.path.exists(dbpath):
             currentpath = os.path.abspath(os.path.join(os.path.abspath('.'), 'functions'))
             if os.path.exists(currentpath):
                 dbpath = currentpath
 
-        if dbpath != None and os.path.exists(dbpath):
+        if dbpath is not None and os.path.exists(dbpath):
             if os.path.abspath(dbpath) != os.path.abspath(functionspath):
 
                 sys.path.append(dbpath)

@@ -1,10 +1,10 @@
-import setpath
-import lib.jopts as jopts
-import functions
+import src.lib.jopts as jopts
+from src.functions import functions
+
 import math
 
 
-#def cosine(*args):
+# def cosine(*args):
 #    """
 #
 #    .. function:: cosine(pack1,pack2)
@@ -43,7 +43,7 @@ import math
 #    --------------------------------
 #    user1  | user2  | 0.899401222438
 #
-#.. doctest::
+# .. doctest::
 #    :hide:
 #
 #    >>> sql("drop table tmpuserfullvecsInmovie")
@@ -62,7 +62,7 @@ import math
 #    sums=math.sqrt(sum([float(s[key])**2 for key in  sset ]))
 #    return sum([float(r[key]*s[key])  for key in  (rset & sset )])/(sumr*sums)
 #
-#cosine.registered=True
+# cosine.registered=True
 
 
 def jaccard(*args):
@@ -103,19 +103,20 @@ def jaccard(*args):
     user3  | user4  | 0.333333333333
     """
 
-    if len(args)!=2:
-        raise functions.OperatorError("jaccard","operator takes exactly two arguments")
+    if len(args) != 2:
+        raise functions.OperatorError("jaccard", "operator takes exactly two arguments")
     try:
-        r=jopts.fromj(args[0])
-        s=jopts.fromj(args[1])
-    except Exception,e:
-        raise functions.OperatorError("jaccard"," Wrong format arguments: %s" %(e))
-    rset=set([tuple(x) if type(x)==list else x for x in r])
-    sset=set([tuple(x) if type(x)==list else x for x in s])
+        r = jopts.fromj(args[0])
+        s = jopts.fromj(args[1])
+    except Exception as e:
+        raise functions.OperatorError("jaccard", " Wrong format arguments: %s" % (e))
+    rset = set([tuple(x) if type(x) == list else x for x in r])
+    sset = set([tuple(x) if type(x) == list else x for x in s])
 
-    return float(len( rset & sset ))/(len( rset | sset ))
+    return float(len(rset & sset)) / (len(rset | sset))
 
-jaccard.registered=True
+
+jaccard.registered = True
 
 
 def sorensendice(*args):
@@ -156,21 +157,22 @@ def sorensendice(*args):
     user3  | user4  | 0.5
     """
 
-    if len(args)!=2:
-        raise functions.OperatorError("sorensendice","operator takes exactly two arguments")
+    if len(args) != 2:
+        raise functions.OperatorError("sorensendice", "operator takes exactly two arguments")
     try:
-        r=jopts.fromj(args[0])
-        s=jopts.fromj(args[1])
-    except Exception,e:
-        raise functions.OperatorError("sorensendice"," Wrong format arguments: %s" %(e))
-    rset=set([tuple(x) if type(x)==list else x for x in r])
-    sset=set([tuple(x) if type(x)==list else x for x in s])
+        r = jopts.fromj(args[0])
+        s = jopts.fromj(args[1])
+    except Exception as e:
+        raise functions.OperatorError("sorensendice", " Wrong format arguments: %s" % (e))
+    rset = set([tuple(x) if type(x) == list else x for x in r])
+    sset = set([tuple(x) if type(x) == list else x for x in s])
 
-    return 2 * float(len( rset & sset ))/(len(rset) + len(sset) )
+    return 2 * float(len(rset & sset)) / (len(rset) + len(sset))
 
-sorensendice.registered=True
 
-#def euclean(*args):###not working with lists
+sorensendice.registered = True
+
+# def euclean(*args):###not working with lists
 #    """
 #
 #    .. function:: euclean(pack1,pack2)
@@ -285,7 +287,7 @@ sorensendice.registered=True
 #    user2  | user4  | 131.148770486
 #    user3  | user4  | 86.0232526704
 #
-#.. doctest::
+# .. doctest::
 #    :hide:
 #
 #    >>> sql("drop table tmpuservecsInmovie")
@@ -303,10 +305,10 @@ sorensendice.registered=True
 #    rset=set(r)
 #    sset=set(s)
 #    return math.sqrt(sum([(float(r[key])-float(s[key]))**2 for key in  (rset & sset )]))
-#euclean.registered=True
+# euclean.registered=True
 
 
-#def eucleancommon(*args):###not working with lists
+# def eucleancommon(*args):###not working with lists
 #    """
 #
 #    .. function:: eucleancommon(pack1,pack2)
@@ -407,7 +409,7 @@ sorensendice.registered=True
 #    user2  | user4  | 30.0
 #    user3  | user4  | 30.0
 #
-#.. doctest::
+# .. doctest::
 #    :hide:
 #
 #    >>> sql("drop table tmpuservecsInmovie")
@@ -427,22 +429,20 @@ sorensendice.registered=True
 #
 #    return math.sqrt(sum([(float(r[key])-float(s[key]))**2 for key in  (rset & sset )]))
 #
-#eucleancommon.registered=True
+# eucleancommon.registered=True
 
 
-
-
-if not ('.' in __name__):
-    """
-    This is needed to be able to test the function, put it at the end of every
-    new function you create
-    """
-    import sys
-    import setpath
-    from functions import *
-    testfunction()
-    if __name__ == "__main__":
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
-        import doctest
-        doctest.testmod()
+# if not ('.' in __name__):
+#     """
+#     This is needed to be able to test the function, put it at the end of every
+#     new function you create
+#     """
+#     import sys
+#     import setpath
+#     from functions import *
+#     testfunction()
+#     if __name__ == "__main__":
+#         reload(sys)
+#         sys.setdefaultencoding('utf-8')
+#         import doctest
+#         doctest.testmod()

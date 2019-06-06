@@ -2,13 +2,13 @@
 
 import src.functions.row.setpath
 import datetime
-from lib import porter2 as porter
-from lib.textcat import *
+from src.lib import porter2 as porter
+from src.lib.textcat import *
 
-classifier=NGram()
+classifier = NGram()
+
 
 def detectlang(*args):
-
     """
     .. function:: detectlang(text1, text2,...) -> text
 
@@ -34,20 +34,21 @@ def detectlang(*args):
     spanish
     """
 
-    if len(args)==0:
+    if len(args) == 0:
         return
 
-    l=''.join(args).encode('utf-8')
+    l = ''.join(args).encode('utf-8')
 
-    if l=='':
+    if l == '':
         return
 
     return classifier.classify(l)
 
-detectlang.registered=True
+
+detectlang.registered = True
+
 
 def stem(*args):
-
     """
     .. function:: stem(text1, text2,...) -> text
 
@@ -67,22 +68,23 @@ def stem(*args):
 
     """
 
-    out=[]
+    out = []
     for i in args:
-        o=i.lower()
-        o=o.strip()
-        o=o.split(' ')
+        o = i.lower()
+        o = o.strip()
+        o = o.split(' ')
 
         for k in o:
-            if len(k)>0:
+            if len(k) > 0:
                 out.append(porter.stem(k))
 
     return ' '.join(out)
 
-stem.registered=True
+
+stem.registered = True
+
 
 def stem_en(*args):
-
     """
     .. function:: stem_en(text1, text2,...) -> text
 
@@ -103,37 +105,39 @@ def stem_en(*args):
 
     """
 
-    jargs=''.join(args)
+    jargs = ''.join(args)
 
-    if detectlang(*args)!='english':
+    if detectlang(*args) != 'english':
         return jargs
 
-    out=[]
+    out = []
     for i in args:
-        o=i.lower()
-        o=o.strip()
-        o=o.split(' ')
+        o = i.lower()
+        o = o.strip()
+        o = o.split(' ')
 
         for k in o:
-            if len(k)>0:
+            if len(k) > 0:
                 out.append(porter.stem(k))
 
     return ' '.join(out)
 
-stem_en.registered=True
 
+stem_en.registered = True
 
-if not ('.' in __name__):
-    """
-    This is needed to be able to test the function, put it at the end of every
-    new function you create
-    """
-    import sys
-    import src.functions.row.setpath
-    from functions import *
-    testfunction()
-    if __name__ == "__main__":
-        reload(sys)
-        sys.setdefaultencoding('utf-8')
-        import doctest
-        doctest.testmod()
+# if not ('.' in __name__):
+#     """
+#     This is needed to be able to test the function, put it at the end of every
+#     new function you create
+#     """
+#     import sys
+#     import src.functions.row.setpath
+#     from functions import *
+#
+#     testfunction()
+#     if __name__ == "__main__":
+#         reload(sys)
+#         sys.setdefaultencoding('utf-8')
+#         import doctest
+#
+#         doctest.testmod()
